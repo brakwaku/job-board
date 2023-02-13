@@ -28,5 +28,17 @@
     "title": "DevOps Guy",
     "companyId": "wvdB54Gqbdp_NZTXK9Tue",
     "description": "Snr DevOps Guy"
+  },
+  {
+    "id": "py1e23KwAhftHcqluVJK7",
+    "title": "Project Manager",
+    "description": "Minimum of a year experience ir required",
+    "companyId": "pVbRRBQtMVw6lUAkj1k43"
+  },
+  {
+    "id": "v-L7Z-YhWriCj_7gzkQei",
+    "title": "Q&A Tester",
+    "description": "Do the testing",
+    "companyId": "pVbRRBQtMVw6lUAkj1k43"
   }
 ]
