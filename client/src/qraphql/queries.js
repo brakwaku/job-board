@@ -8,22 +8,33 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
-export async function getJob(id) {
-  const query = gql`
-    query JobQuery($id: ID!) {
-      job(id: $id) {
-        id
-        title
-        company {
-          id
-          name
-        }
-        description
-      }
+const JOB_DETAILS_FRAGMENT = gql`
+  fragment JobDetail on Job {
+    id
+    title
+    company {
+      id
+      name
     }
-  `;
+    description
+  }
+`;
+
+const JOB_QUERY = gql`
+  query JobQuery($id: ID!) {
+    job(id: $id) {
+      ...JobDetail
+    }
+  }
+  ${JOB_DETAILS_FRAGMENT}
+`;
+
+export async function getJob(id) {
   const variables = { id };
-  const { data: { job }} = await client.query({ query, variables });
+  const { data: { job } } = await client.query({
+    query: JOB_QUERY,
+    variables
+  });
   return job;
 }
 
@@ -31,15 +42,27 @@ export async function createJob(input) {
   const mutation = gql`
     mutation CreateJobMutation($input: CreateJobInput!) {
       job: createJob(input: $input) {
-        id
+        ...JobDetail
       }
+      ${JOB_DETAILS_FRAGMENT}
     }
   `;
   const variables = { input };
   const context = {
-    headers: { 'Authorization': 'Bearer ' + getAccessToken() },
-  }
-  const { data: { job }} = await client.mutate({ mutation, variables, context })
+    headers: { Authorization: 'Bearer ' + getAccessToken() },
+  };
+  const { data: { job } } = await client.mutate({
+    mutation,
+    variables,
+    context,
+    update: (cache, { data: { job } }) => {
+      cache.writeQuery({
+        query: JOB_QUERY,
+        variables: { id: job.id },
+        data: { job },
+      });
+    },
+  });
   return job;
 }
 
@@ -58,7 +81,7 @@ export async function getCompany(id) {
     }
   `;
   const variables = { id };
-  const { data: { company }} = await client.query({ query, variables });
+  const { data: { company } } = await client.query({ query, variables });
   return company;
 }
 
@@ -69,12 +92,13 @@ export async function getJobs() {
         id
         title
         company {
+          id
           name
         }
         description
       }
     }
   `;
-  const { data: { jobs }} = await client.query({ query });
+  const { data: { jobs } } = await client.query({ query, fetchPolicy: 'network-only' });
   return jobs;
 }
