@@ -1,17 +1,17 @@
-import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
-import { getCompany } from '../qraphql/queries';
+import { useCompany } from '../qraphql/hooks';
 import JobList from './JobList';
 
 function CompanyDetail() {
-  const [company, setCompany] = useState(null)
   const { companyId } = useParams();
-  useEffect(() => {
-    getCompany(companyId).then(setCompany);
-  }, [companyId])
+  const { company, loading, error} = useCompany(companyId)
 
-  if (!company) {
+  if (loading) {
     return <p>Loading...</p>
+  }
+
+  if (error) {
+    return <p>An error occured</p>
   }
   return (
     <div>
