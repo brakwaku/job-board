@@ -9,6 +9,7 @@ function JobBoard() {
   }
   
   if (error) {
+    console.error(error);
     return <p>Sorry, something went wrong.</p>
   }
   return (

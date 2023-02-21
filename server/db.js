@@ -10,14 +10,14 @@ export const db = knex({
 });
 
 db.on('query', ({ sql, bindings }) => {
-  // console
+  console.log('[db]', sql, bindings);
 });
 
-export function createompanyLoader() {
+export function createcompanyLoader() {
   return new DataLoader(async (companyIds) => {
     console.log('[companyLoader] companyIds', companyIds);
     const companies = await db.select().from('companies').whereIn('id', companyIds);
-    return companyIds.map((companId) => {
+    return companyIds.map((companyId) => {
       return companies.find((company) => company.id === companyId);
     });
   });

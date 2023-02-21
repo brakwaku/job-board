@@ -4,7 +4,7 @@ import express from 'express';
 import { expressjwt } from 'express-jwt';
 import { readFile } from 'fs/promises';
 import jwt from 'jsonwebtoken';
-import { createompanyLoader, db } from './db.js';
+import { createcompanyLoader, db } from './db.js';
 import { resolvers } from './resolvers.js';
 
 const PORT = 9000;
@@ -30,7 +30,7 @@ app.post('/login', async (req, res) => {
 
 const typeDefs = await readFile('./schema.graphql', 'utf-8');
 const context = async ({ req }) => {
-  const companyLoader = createompanyLoader();
+  const companyLoader = createcompanyLoader();
   if (req.auth) {
     const user = await db.select().from('users').where('id', req.auth.sub).first();
     return { companyLoader, user };
