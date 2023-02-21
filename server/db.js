@@ -1,7 +1,25 @@
-import { Database } from 'fakebase';
+import DataLoader from 'dataloader';
+import knex from 'knex';
 
-const db = new Database('./data');
+export const db = knex({
+  client: 'better-sqlite3',
+  connection: {
+    filename: './data/db.sqlite3',
+  },
+  useNullAsDefault: true,
+});
 
-export const Company = db.table('companies');
-export const Job = db.table('jobs');
-export const User = db.table('users');
+db.on('query', ({ sql, bindings }) => {
+  // console
+});
+
+export function createompanyLoader() {
+  return new DataLoader(async (companyIds) => {
+    console.log('[companyLoader] companyIds', companyIds);
+    const companies = await db.select().from('companies').whereIn('id', companyIds);
+    return companyIds.map((companId) => {
+      return companies.find((company) => company.id === companyId);
+    });
+  });
+}
+

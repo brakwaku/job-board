@@ -4,7 +4,7 @@ import express from 'express';
 import { expressjwt } from 'express-jwt';
 import { readFile } from 'fs/promises';
 import jwt from 'jsonwebtoken';
-import { User } from './db.js';
+import { createompanyLoader, db } from './db.js';
 import { resolvers } from './resolvers.js';
 
 const PORT = 9000;
@@ -19,7 +19,7 @@ app.use(cors(), express.json(), expressjwt({
 
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
-  const user = await User.findOne((user) => user.email === email);
+  const user = await db.select().from('users').where('email', email).first();
   if (user && user.password === password) {
     const token = jwt.sign({ sub: user.id }, JWT_SECRET);
     res.json({ token });  
@@ -30,15 +30,16 @@ app.post('/login', async (req, res) => {
 
 const typeDefs = await readFile('./schema.graphql', 'utf-8');
 const context = async ({ req }) => {
+  const companyLoader = createompanyLoader();
   if (req.auth) {
-    const user = await User.findById(req.auth.sub);
-    return { user };
+    const user = await db.select().from('users').where('id', req.auth.sub).first();
+    return { companyLoader, user };
   }
-  return {}
+  return { companyLoader };
 };
 const apolloServer = new ApolloServer({ typeDefs, resolvers, context });
 await apolloServer.start();
-apolloServer.applyMiddleware({ app, path: '/graphql' }); // Add middleware to include graghql to express. Path specifies route for graphql traffic. It defaults to /graphql
+apolloServer.applyMiddleware({ app, path: '/graphql' });
 
 app.listen({ port: PORT }, () => {
   console.log(`Server running on port ${PORT}`);
