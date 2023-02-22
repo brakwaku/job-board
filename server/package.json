@@ -7,7 +7,7 @@
     "start": "nodemon --ext js,graphql --ignore data/ server.js"
   },
   "dependencies": {
-    "apollo-server-express": "^3.11.1",
+    "@apollo/server": "^4.0.0",
     "better-sqlite3": "^8.0.1",
     "cors": "^2.8.5",
     "dataloader": "^2.2.2",

@@ -1,4 +1,5 @@
-import { ApolloServer } from 'apollo-server-express';
+import { ApolloServer } from '@apollo/server';
+import { expressMiddleware as apolloExpress } from '@apollo/server/express4';
 import cors from 'cors';
 import express from 'express';
 import { expressjwt } from 'express-jwt';
@@ -37,9 +38,9 @@ const context = async ({ req }) => {
   }
   return { companyLoader };
 };
-const apolloServer = new ApolloServer({ typeDefs, resolvers, context });
+const apolloServer = new ApolloServer({ typeDefs, resolvers });
 await apolloServer.start();
-apolloServer.applyMiddleware({ app, path: '/graphql' });
+app.use('/graphql', apolloExpress(apolloServer, { context }));
 
 app.listen({ port: PORT }, () => {
   console.log(`Server running on port ${PORT}`);
